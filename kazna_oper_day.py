@@ -14,7 +14,7 @@ import pandas as pd
 import os
 import xlsxwriter
 
-path = '/Users/gm/Downloads/'  # change path if needed
+path = '/Users/gm/Downloads/'  # change path to reflect your user name
 entries = os.listdir(path)
 xml_files = []
 for filename in entries:
@@ -38,9 +38,6 @@ while got_it == False:
     else:
         print('Oops, wrong choice...\n')
 
-# read xml data to pandas dataframe
-# df = pd.read_xml('./data/operday_2307787163.xml')
-# df = pd.read_xml('./data/operday_2307787163.xml')
 df = pd.read_xml(path+xml_file)
 df.set_index('Num', inplace=True)
 
@@ -59,7 +56,7 @@ m = [
     'Размещено по валютным свопам',
     'Размещено на депозитах с центральным контрагентом'
 ]
-# columns names in Russian
+# column names in Russian
 new_col_names = [
     'Дата',
     'Сумма, млн рублей',
@@ -85,7 +82,7 @@ new_col_names = [
     'Срок, дней',
     'Остаток к возврату, млн рублей'
 ]
-# columns to scale by 1 mio
+# columns to scale by 1_000_000
 mln_cols = [
     'DepoSum', 'RepoSUM', 'KredSum', 'BSOst', 'DepoUsdSum', 'DepoOstRub',
     'DepoOstUsd', 'RepoOst', 'SwopSum', 'RepoOstUsd', 'RepoUsdSUM',
@@ -113,15 +110,15 @@ for col in int_cols:
 # change columns order and give them Russian names
 df1 = df[new_order]
 df1.columns = new_col_names
-df2 = df1.T
 
-# create multiindex
+# transpose and create multiindex
+df2 = df1.T
 df2.index = [multi, df2.index]
 
 # write results to Excel file to ~/Downloads folder
 
 # create a Pandas Excel writer using XlsxWriter as the engine.
-writer = pd.ExcelWriter(path + 'kazna_oper_day__.xlsx', engine='xlsxwriter')
+writer = pd.ExcelWriter(path + 'kazna_oper_day.xlsx', engine='xlsxwriter')
 
 # convert the dataframe to an XlsxWriter Excel object.
 df2.to_excel(writer, sheet_name='Операционный день казначейства')
@@ -151,9 +148,10 @@ mln_rows = [2, 3, 7, 8, 9, 10, 14, 15, 16, 17, 18, 20, 23]
 for row in mln_rows:
     worksheet.set_row(row, None, format_mln_row)
 
-# Close the Pandas Excel writer and output the Excel file.
+# close the Pandas Excel writer and output the Excel file.
 writer.save()
 
+# sanity check before running to open the Excel file
 print('\n', df2.iloc[:5, :5], '\n')
 
 print('Tutto opossum!\n')
