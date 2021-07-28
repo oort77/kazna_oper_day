@@ -12,9 +12,7 @@
 # import libraries
 import pandas as pd
 import os
-
-import pandas as pd
-import os
+import xlsxwriter
 
 path = '/Users/gm/Downloads/'  # change path if needed
 entries = os.listdir(path)
@@ -120,9 +118,41 @@ df2 = df1.T
 # create multiindex
 df2.index = [multi, df2.index]
 
-# write results to Excel file to ~/Downloads folder1
+# write results to Excel file to ~/Downloads folder
 
-df2.to_excel(path + 'kazna_oper_day.xlsx', encoding='utf-8')
+# create a Pandas Excel writer using XlsxWriter as the engine.
+writer = pd.ExcelWriter(path + 'kazna_oper_day__.xlsx', engine='xlsxwriter')
+
+# convert the dataframe to an XlsxWriter Excel object.
+df2.to_excel(writer, sheet_name='Операционный день казначейства')
+
+# cet the xlsxwriter workbook and worksheet objects.
+workbook = writer.book
+worksheet = writer.sheets['Операционный день казначейства']
+
+# Add some cell formats.
+# format_idx0 = workbook.add_format({'bold': True,  # font bold
+#                                    #    'border': 1,  # Cell border width
+#                                    'align': 'left',  # alignment
+#                                    'valign': 'top',  # font alignment
+#                                    'text_wrap': True  # wrap text
+#                                    })
+
+format_mln_row = workbook.add_format({'num_format': '#,##0'})
+
+# Note: It isn't possible to format any cells that already have a format such
+# as the index or headers or any cells that contain dates or datetimes.
+
+# Set the column width and format.
+# worksheet.set_column('A:A', 30, format_idx0)
+
+# set mln rows
+mln_rows = [2, 3, 7, 8, 9, 10, 14, 15, 16, 17, 18, 20, 23]
+for row in mln_rows:
+    worksheet.set_row(row, None, format_mln_row)
+
+# Close the Pandas Excel writer and output the Excel file.
+writer.save()
 
 print('\n', df2.iloc[:5, :5], '\n')
 
